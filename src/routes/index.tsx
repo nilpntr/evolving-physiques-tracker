@@ -66,7 +66,6 @@ function Landing() {
           </Show>
 
           <Show when={"signed-in"}>
-            {console.log(ids)}
             {ids.length === 1 && (
               <Link
                 to="/$spreadsheetId"
