@@ -136,7 +136,7 @@ function SpreadsheetPage() {
   const { title, tabs, tab } = data;
   const { spreadsheetId } = Route.useParams();
   const { tab: selectedTab } = Route.useSearch();
-  const navigate = useNavigate({ from: "/_auth/$spreadsheetId" });
+  const navigate = useNavigate({ from: "/$spreadsheetId" });
   const isLoading = useRouterState({ select: (s) => s.status === "pending" });
 
   const [activeDay, setActiveDay] = useState(0);

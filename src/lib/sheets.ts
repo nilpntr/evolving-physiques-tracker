@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { auth } from "@clerk/tanstack-react-start/server";
 import { z } from "zod";
+import { env } from "#/env";
 import {
   evolvingPhysiquesConfig,
   parseWeekData,
@@ -12,16 +13,23 @@ export type SpreadsheetMeta = {
   tabs: string[];
 };
 
+async function getAllowedIds(): Promise<string[]> {
+  const { userId } = await auth();
+  if (!userId) return [];
+  const { createClerkClient } = await import("@clerk/backend");
+  const clerk = createClerkClient({ secretKey: env.CLERK_SECRET_KEY });
+  const user = await clerk.users.getUser(userId);
+  return (user.privateMetadata.allowedSpreadsheetIds ?? []) as string[];
+}
+
+export const getAllowedSpreadsheetIds = createServerFn({
+  method: "GET",
+}).handler(async (): Promise<string[]> => getAllowedIds());
+
 export const checkSpreadsheetAccess = createServerFn({ method: "GET" })
   .inputValidator(z.object({ spreadsheetId: z.string() }))
   .handler(async ({ data }): Promise<boolean> => {
-    const { userId } = await auth();
-    if (!userId) return false;
-
-    const { createClerkClient } = await import("@clerk/backend");
-    const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
-    const user = await clerk.users.getUser(userId);
-    const allowed = (user.privateMetadata.allowedSpreadsheetIds ?? []) as string[];
+    const allowed = await getAllowedIds();
     return allowed.includes(data.spreadsheetId);
   });
 

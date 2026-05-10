@@ -5,6 +5,7 @@ export const env = createEnv({
 	server: {
 		SERVER_URL: z.string().url().optional(),
 		GOOGLE_DRIVE_CREDENTIALS_FILE: z.string(),
+		CLERK_SECRET_KEY: z.string(),
 	},
 
 	/**
@@ -21,7 +22,10 @@ export const env = createEnv({
 	 * What object holds the environment variables at runtime. This is usually
 	 * `process.env` or `import.meta.env`.
 	 */
-	runtimeEnv: import.meta.env,
+	runtimeEnv: {
+		...process.env,
+		...import.meta.env,
+	},
 
 	/**
 	 * By default, this library will feed the environment variables directly to
